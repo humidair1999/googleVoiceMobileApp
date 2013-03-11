@@ -1,9 +1,13 @@
 ﻿define([    "jquery",
             "underscore",
-            "backbone"],
+            "backbone",
+            "views/inbox-view",
+            "collections/threads"],
 function (  $,
             _,
-            Backbone) {
+            Backbone,
+            InboxView,
+            Threads) {
 
     "use strict";
 
@@ -37,48 +41,15 @@ function (  $,
             });
         },
         showInbox: function (id) {
-            console.log(id);
+            var threads = new Threads();
 
-            $.ajax({
-                url: "http://localhost:3000/inbox",
-                type: "GET",
-                dataType: "json",
-                data: {
-                    page: id,
-                    token: user.token
-                },
-                beforeSend: function () {
-                    console.log("before");
-                }
-            }).done(function (data) {
-                console.log(data);
-
-                // var messages = data.messages,
-                //     messageHtml = "";
-
-                // console.log(messages);
-
-                // $.each(messages, function(index, value) {
-                //     console.log(index);
-                //     console.log(value);
-
-                //     messageHtml += value.messageText +
-                //         "<a href=\"#messages/" + value.id + "\">" +
-                //         "read thread" +
-                //         "</a>" +
-                //         "<br />";
-                // });
-
-                // $("#messages").html(id + "<br /><br />" + messageHtml);
-
-                $("#messages").html(data);
-            }).fail(function(jqXHR, textStatus, errorThrown) {
-                console.log(jqXHR);
-                console.log(textStatus);
-                console.log(errorThrown);
-            }).always(function() {
-                //console.log("wtf");
+            var inboxView = new InboxView({
+                collection: threads
             });
+
+            $("#messages").html(inboxView.render().el);
+
+            inboxView.fetchInbox(id);
         },
         showMessage: function (id) {
             console.log(id);

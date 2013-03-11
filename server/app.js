@@ -4,7 +4,8 @@ var express = require("express"),
     https = require("https"),
     querystring = require("querystring"),
     q = require("q"),
-    elementtree = require("elementtree");
+    elementtree = require("elementtree"),
+    $ = require("cheerio");
 
 var app = express();
 
@@ -115,62 +116,108 @@ app.get("/inbox", function(req, res) {
     };
 
     retrieveInbox(token).then(function(data) {
-        var xmlTree = elementtree.parse(data);
+        var xmlTree = elementtree.parse(data),
+            htmlTree = xmlTree.findtext("html"),
+            jsonTree = xmlTree.findtext("json"),
+            json = JSON.parse(jsonTree),
+            $htmlTree = $(htmlTree),
+            messageJson = {};
 
-        //console.log(xmlTree.findtext("json"));
+        // array of objects containing actual individual sms messages
+        messageJson.messages = [];
 
-        res.json(xmlTree.findtext("html"));
+        // metadata associated with overall sms inbox
+        messageJson.metadata = {
+            totalSize: json.totalSize,
+            unread: json.unreadCounts.sms,
+            resultsPerPage: json.resultsPerPage
+        };
 
-        res.end();
-    });
-});
+        $htmlTree.each(function() {
+            var messageObj = {};
 
-app.get("/messages", function(req, res) {
-    var token = req.query.token,
-        id = req.query.id;
+            if (this.hasClass("gc-message-sms")) {
+                var id = this.attr("id");
 
-    var retrieveInbox = function(token) {
-        var options = {
-            hostname: "www.google.com",
-            path: "/voice/inbox/recent/sms/" + id,
-            method: "GET",
-            headers: {
-                "Authorization": "GoogleLogin auth=" + token
+                messageObj.id = id;
+
+                messageObj.contact = {};
+
+                var $metadata = this.find(".gc-message-tbl-metadata");
+
+                var $contact = $metadata.find(".gc-message-name");
+
+                messageObj.contact.name = $contact.children(".gc-message-name-link").text().trim();
+                messageObj.contact.id = $contact.children(".gc-message-contact-id").text().trim();
+                messageObj.contact.phone = $metadata.find(".gc-message-type").text().trim();
+
+                messageObj.metadata = {};
+
+                var $timeData = $metadata.children(".gc-message-time-row");
+
+                messageObj.metadata.time = $timeData.children(".gc-message-time").text().trim();
+                messageObj.metadata.relativeTime = $timeData.children(".gc-message-relative").text().trim();
+
+                messageObj.messages = [];
+
+                var $messageData = this.find(".gc-message-message-display");
+
+                // remove "more" link div, since we're not using it
+                $messageData.children(".gc-message-sms-more").remove();
+
+                var $messageContainers = $messageData.children();
+
+                var $messageRow = $messageContainers.first(".gc-message-sms-row");
+
+                messageObj.messages.push({
+                    from: $messageRow.children(".gc-message-sms-from").text().trim(),
+                    text: $messageRow.children(".gc-message-sms-text").text().trim(),
+                    time: $messageRow.children(".gc-message-sms-time").text().trim()
+                });
+
+                // remove first message div after its data has been retrieved
+                $messageRow.remove();
+
+                // reset messages after removing existing elements
+                $messageContainers = $messageData.children();
+
+                $messageContainers.each(function() {
+                    if (this.hasClass("gc-message-sms-old")) {
+                        this.children(".gc-message-sms-row").each(function() {
+                            messageObj.messages.push({
+                                from: this.children(".gc-message-sms-from").text().trim(),
+                                text: this.children(".gc-message-sms-text").text().trim(),
+                                time: this.children(".gc-message-sms-time").text().trim()
+                            });
+                        });
+
+                        this.remove();
+                    }
+                });
+
+                // reset messages after removing existing elements
+                $messageContainers = $messageData.children();
+
+                $messageContainers.each(function() {
+                    if (this.hasClass("gc-message-sms-row")) {
+                        messageObj.messages.push({
+                            from: this.children(".gc-message-sms-from").text().trim(),
+                            text: this.children(".gc-message-sms-text").text().trim(),
+                            time: this.children(".gc-message-sms-time").text().trim()
+                        });
+                    
+                        this.remove();
+                    }
+                });
+
+                // push new constructed object onto JSON result
+                messageJson.messages.push(messageObj);
             }
-        },
-        deferred = q.defer();
-
-        var req = https.request(options, function(res) {
-            var data = "";
-
-            res.setEncoding("utf8");
-
-            res.on("data", function (chunk) {
-                return data += chunk;
-            });
-
-            res.on("end", function() {
-                deferred.resolve(data);
-            });
         });
 
-        req.on("error", function(e) {
-            deferred.reject();
-        });
+        //console.log(messageJson);
 
-        req.end();
-
-        return deferred.promise;
-    };
-
-    retrieveInbox(token).then(function(data) {
-        console.log(data);
-
-        var xmlTree = elementtree.parse(data);
-
-        console.log(xmlTree.findtext("html"));
-
-        res.json(xmlTree.findtext("html"));
+        res.json(messageJson);
 
         res.end();
     });

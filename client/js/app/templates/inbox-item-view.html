@@ -1,0 +1,13 @@
+<div style="border: 1px solid gray;">
+    {{=it.metadata.time}} | {{=it.metadata.relativeTime}}
+    <br />
+    {{=it.contact.name}} | {{=it.contact.phone}}
+    <br />
+
+    <div>
+        {{~it.messagePreviews :value:index}}
+            <div>from {{=value.from}} at {{=value.time}}</div>
+            <div>{{=value.text}}</div>
+        {{~}}
+    </div>
+</div>

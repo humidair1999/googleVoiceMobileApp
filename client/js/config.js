@@ -15,8 +15,9 @@ require.config({
 
         // third-party libraries
         jquery: "libs/jquery-1.9.1.min",
-        backbone: "libs/backbone-min",
         underscore: "libs/underscore-min",
+        backbone: "libs/backbone-min",
+        dot: "libs/doT.min",
         text: "libs/text"
     },
 
@@ -34,7 +35,7 @@ require.config({
             exports: "_"
         },
         backbone: {
-            deps: ["underscore", "jquery"],
+            deps: ["jquery", "underscore"],
             exports: "Backbone"
         }
     }
