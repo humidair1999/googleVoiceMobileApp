@@ -21,27 +21,18 @@ function (  $,
             //this.listenTo(this.collection, "change", this.renderCollection);
         },
         render: function() {
-            var threadLength = this.model.get("messages").length,
-                previewThread = [];
+            var that = this,
+                threadLength = this.model.get("messages").length,
+                shownPreviewCount = 5;
 
-            if (threadLength > 5) {
-                $.each(this.model.get("messages"), function(index, value) {
-                    if (index >= threadLength - 5) {
-                        previewThread.push(value);
-                    }
-                });
-            }
-
-            if (previewThread.length > 0) {
-                this.model.set({
-                    "messagePreviews": previewThread
-                });
-            }
-            else {
-                this.model.set({
-                    "messagePreviews": this.model.get("messages")
-                });
-            }
+            $.each(this.model.get("messages"), function(index, value) {
+                if (index >= threadLength - shownPreviewCount) {
+                    that.model.get("messages")[index].isPreviewMessage = true;
+                }
+                else {
+                    that.model.get("messages")[index].isPreviewMessage = false;
+                }
+            });
 
             console.log(this.model);
 

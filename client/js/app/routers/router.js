@@ -26,7 +26,7 @@ function (  $,
                 url: "http://localhost:3000/login",
                 type: "POST",
                 beforeSend: function () {
-                    console.log("before");
+                    console.log("before login");
                 }
             }).done(function (data) {
                 console.log(data);

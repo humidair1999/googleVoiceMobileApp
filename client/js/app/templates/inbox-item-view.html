@@ -5,9 +5,13 @@
     <br />
 
     <div>
-        {{~it.messagePreviews :value:index}}
-            <div>from {{=value.from}} at {{=value.time}}</div>
-            <div>{{=value.text}}</div>
+        {{~it.messages :value:index}}
+            {{? value.isPreviewMessage }}
+                <div><b>from {{=value.from}} at {{=value.time}}</b></div>
+                <div>{{=value.text}}</div>
+            {{?}}
         {{~}}
     </div>
+
+    <a href="#messages/{{=it.id}}">{{=it.id}}</a>
 </div>
