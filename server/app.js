@@ -22,22 +22,22 @@ app.post("/login", function(req, res) {
     var authenticateViaGoogle = function() {
         // TODO: don't hard-code google login info
         var data = querystring.stringify({
-            Email: "joshuakmarsh@gmail.com",
-            Passwd: "",
-            service: "grandcentral",
-            // TODO: use official name of app
-            source: "test"
-        }),
-        options = {
-            hostname: "www.google.com",
-            path: "/accounts/ClientLogin",
-            method: "POST",
-            headers: {
-                "Content-Type": "application/x-www-form-urlencoded",
-                "Content-Length": data.length
-            }
-        },
-        deferred = q.defer();
+                Email: "joshuakmarsh@gmail.com",
+                Passwd: "",
+                service: "grandcentral",
+                // TODO: use official name of app
+                source: "test"
+            }),
+            options = {
+                hostname: "www.google.com",
+                path: "/accounts/ClientLogin",
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/x-www-form-urlencoded",
+                    "Content-Length": data.length
+                }
+            },
+            deferred = q.defer();
 
         var req = https.request(options, function(res) {
             var data = "";
@@ -50,16 +50,27 @@ app.post("/login", function(req, res) {
             });
 
             res.on("end", function() {
-                var sid = data.split("SID=")[1].split("LSID=")[0],
-                    lsid = data.split("LSID=")[1].split("Auth=")[0],
+                var sid,
+                    lsid,
+                    auth;
+
+                if (data.indexOf("SID") > -1 &&
+                    data.indexOf("LSID") > -1 &&
+                    data.indexOf("Auth") > -1) {
+                    sid = data.split("SID=")[1].split("LSID=")[0];
+                    lsid = data.split("LSID=")[1].split("Auth=")[0];
                     auth = data.split("Auth=")[1];
 
-                deferred.resolve(auth);
+                    deferred.resolve(auth);
+                }
+                else {
+                    deferred.reject(data);
+                }
             });
         });
 
-        req.on("error", function(e) {
-            deferred.reject();
+        req.on("error", function(error) {
+            deferred.reject(error);
         });
 
         // write data to request body
@@ -74,6 +85,8 @@ app.post("/login", function(req, res) {
         res.send(data);
 
         res.end();
+    }, function(error) {
+        console.log("error: ", error);
     });
 });
 
