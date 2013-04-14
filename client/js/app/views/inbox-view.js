@@ -34,14 +34,14 @@ function (  $,
                 $(that.el).append(inboxItemView.render().el);
             });
         },
-        fetchInbox: function(id) {
+        fetchInbox: function(page) {
             var that = this;
 
             return this.collection.fetch({
                 type: "GET",
                 dataType: "json",
                 data: {
-                    page: id,
+                    page: page,
                     token: GVMA.user.token
                 },
                 beforeSend: function () {

@@ -288,4 +288,58 @@ app.get("/inbox", function(req, res) {
     });
 });
 
+app.post("/sms", express.bodyParser(), function(req, res) {
+    var token = req.body.token,
+        data = querystring.stringify({
+            _rnr_se: req.body._rnr_se,
+            phoneNumber: 2073700006,
+            text: req.body.text
+        });
+
+    var sendSms = function(token, data) {
+        var options = {
+            hostname: "www.google.com",
+            path: "/voice/sms/send/",
+            method: "POST",
+            headers: {
+                "Content-Type": "application/x-www-form-urlencoded",
+                "Authorization": "GoogleLogin auth=" + token
+            }
+        },
+        deferred = q.defer();
+
+        var req = https.request(options, function(res) {
+            var data = "";
+
+            res.setEncoding("utf8");
+
+            res.on("data", function (chunk) {
+                return data += chunk;
+            });
+
+            res.on("end", function() {
+                deferred.resolve(data);
+            });
+        });
+
+        req.on("error", function(e) {
+            deferred.reject();
+        });
+
+        req.write(data);
+
+        req.end();
+
+        return deferred.promise;
+    };
+
+    sendSms(token, data).then(function(data) {
+        res.send("successfully sent message");
+
+        res.end();
+    }, function(error) {
+        console.log("error: ", error);
+    });
+});
+
 app.listen(3000);

@@ -25,9 +25,24 @@ function (  $,
             return this;
         },
         sendSms: function(evt) {
+            var that = this,
+                smsText = $("#sms-textarea").val();
+
             evt.preventDefault();
-            
-            console.log("lol");
+
+            return $.ajax({
+                url: "http://localhost:3000/sms",
+                type: "POST",
+                data: {
+                    phoneNumber: that.model.get("contact").phone,
+                    text: smsText,
+                    _rnr_se: GVMA.user.rnrse,
+                    token: GVMA.user.token
+                },
+                beforeSend: function() {
+                    console.log("begin sending text");
+                }
+            });
         }
     });
 
