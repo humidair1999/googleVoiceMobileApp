@@ -11,8 +11,9 @@ function (  $,
 
     $(document).ready(function() {
         GVMA.user = {};
+        GVMA.app = {};
 
-        new Router();
+        GVMA.app.router = new Router();
 
         Backbone.history.start();
     });

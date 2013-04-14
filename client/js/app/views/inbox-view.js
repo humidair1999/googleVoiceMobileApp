@@ -17,13 +17,45 @@ function (  $,
         template: doT.template(inboxViewTemplate),
         initialize: function() {
             this.listenTo(this.collection, "reset", this.renderCollection);
+
+            this.listenTo(this.collection, "change:metadata", this.render);
         },
         events: {
             "click #refresh-inbox": "refreshInbox"
         },
         inboxItemViews: [],
         render: function() {
-            this.$el.html(this.template(this.collection.options));
+            var resultsPerPage,
+                totalSize,
+                totalPages;
+
+            try {
+                resultPerPage = this.collection.data("metadata").resultsPerPage;
+            }
+            catch(error) {
+                resultsPerPage = 10;
+            }
+
+            try {
+                totalSize = this.collection.data("metadata").totalSize;
+            }
+            catch(error) {
+                totalSize = 100;
+            }
+
+            totalPages = (totalSize / resultsPerPage);
+
+            console.log(totalPages);
+
+            if (this.collection.data("currentPage") > 1) {
+                //this.collection.data("hasNewerThreads", true);
+            }
+
+            if (this.collection.data("currentPage") * resultsPerPage < 30) {
+                //this.collection.data("hasOlderThreads", true);
+            }
+
+            this.$el.html(this.template(this.collection.data("currentPage")));
     
             return this;
         },
@@ -61,8 +93,6 @@ function (  $,
                 // console.log(collection);
                 // console.log(response);
                 // console.log(options);
-
-                console.log(that.collection.length);
             }).fail(function(collection, xhr, options) {
                 // console.log(collection);
                 // console.log(xhr);
@@ -74,7 +104,7 @@ function (  $,
         refreshInbox: function(evt) {
             evt.preventDefault();
 
-            this.fetchInbox(this.collection.options.currentPage);
+            this.fetchInbox(this.collection.data("currentPage"));
         }
     });
 
