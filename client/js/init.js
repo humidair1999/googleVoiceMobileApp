@@ -10,6 +10,8 @@ function (  $,
     "use strict";
 
     $(document).ready(function() {
+        GVMA.user = {};
+
         new Router();
 
         Backbone.history.start();

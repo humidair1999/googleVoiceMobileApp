@@ -1,0 +1,12 @@
+<div style="border: 1px solid gray;">
+    {{~it.messages :value:index}}
+        <div><b>from {{=value.from}} at {{=value.time}}</b></div>
+        <div>{{=value.text}}</div>
+    {{~}}
+
+    <form id="sms-form">
+        <textarea rows="4" cols="50" placeholder="Enter a message"></textarea>
+
+        <input type="submit" value="Send">
+    </form>
+</div>

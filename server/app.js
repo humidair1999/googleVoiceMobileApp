@@ -5,7 +5,9 @@ var express = require("express"),
     querystring = require("querystring"),
     q = require("q"),
     elementtree = require("elementtree"),
-    $ = require("cheerio");
+    $ = require("cheerio"),
+    // TODO: shouldn't need filesystem access
+    fs = require('fs');
 
 var app = express();
 
@@ -83,6 +85,56 @@ app.post("/login", function(req, res) {
 
     authenticateViaGoogle().then(function(data) {
         res.send(data);
+
+        res.end();
+    }, function(error) {
+        console.log("error: ", error);
+    });
+});
+
+app.get("/rnrse", function(req, res) {
+    var token = req.query.token;
+
+    var retrieveRnrse = function(token) {
+        var options = {
+            hostname: "www.google.com",
+            path: "/voice",
+            method: "GET",
+            headers: {
+                "Authorization": "GoogleLogin auth=" + token
+            }
+        },
+        deferred = q.defer();
+
+        var req = https.request(options, function(res) {
+            var data = "";
+
+            res.setEncoding("utf8");
+
+            res.on("data", function (chunk) {
+                return data += chunk;
+            });
+
+            res.on("end", function() {
+                deferred.resolve(data);
+            });
+        });
+
+        req.on("error", function(e) {
+            deferred.reject();
+        });
+
+        req.end();
+
+        return deferred.promise;
+    };
+
+    retrieveRnrse(token).then(function(data) {
+        var $htmlTree = $(data),
+            $rnrseElement = $htmlTree.find("input[name=_rnr_se]"),
+            rnrseToken = $rnrseElement.attr("value");
+
+        res.send(rnrseToken);
 
         res.end();
     }, function(error) {

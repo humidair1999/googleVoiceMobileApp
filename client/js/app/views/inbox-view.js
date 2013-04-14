@@ -42,7 +42,7 @@ function (  $,
                 dataType: "json",
                 data: {
                     page: id,
-                    token: user.token
+                    token: GVMA.user.token
                 },
                 beforeSend: function () {
                     //console.log("before");

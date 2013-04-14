@@ -16,6 +16,8 @@ function (  $,
             //console.log("threads");
         },
         parse: function(response) {
+            // TODO: don't forget this call also retrieves overall inbox metadata
+
             return response.messages;
         }
     });
