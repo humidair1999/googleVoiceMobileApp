@@ -14,6 +14,8 @@ function (  $,
         url: "http://localhost:3000/inbox",
         initialize: function() {
             this.options = {};
+
+            console.log("threads created");
         },
         parse: function(response) {
             this.options.metadata = response.metadata;

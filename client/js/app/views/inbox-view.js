@@ -21,6 +21,7 @@ function (  $,
         events: {
             "click #refresh-inbox": "refreshInbox"
         },
+        inboxItemViews: [],
         render: function() {
             this.$el.html(this.template(this.collection.options));
     
@@ -28,13 +29,19 @@ function (  $,
         },
         renderCollection: function() {
             var that = this;
+
+            // remove all existing inbox summary views
+            _.each(that.inboxItemViews, function(inboxItemView) {
+                inboxItemView.remove();
+            });
  
-            this.collection.each(function(inboxItem) {
-                var inboxItemView = new InboxItemView({
+            // create and append each new inbox summary view
+            this.collection.each(function(inboxItem, index) {
+                that.inboxItemViews[index] = new InboxItemView({
                     model: inboxItem
                 });
 
-                $(that.el).append(inboxItemView.render().el);
+                $("#message-summaries").append(that.inboxItemViews[index].render().el);
             });
         },
         fetchInbox: function(page) {
@@ -54,6 +61,8 @@ function (  $,
                 // console.log(collection);
                 // console.log(response);
                 // console.log(options);
+
+                console.log(that.collection.length);
             }).fail(function(collection, xhr, options) {
                 // console.log(collection);
                 // console.log(xhr);

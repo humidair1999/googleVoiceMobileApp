@@ -78,12 +78,9 @@ function (  $,
         },
         showInbox: function (page) {
             GVMA.threads = page ? new Threads() : GVMA.threads;
+            GVMA.threads.options.currentPage = page || GVMA.threads.options.currentPage;
 
-            if (page) {
-                GVMA.threads.options.currentPage = page;
-            }
-
-            console.log(GVMA.threads);
+            console.log(GVMA.threads.options.currentPage);
 
             var inboxView = new InboxView({
                 collection: GVMA.threads
