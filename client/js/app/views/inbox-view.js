@@ -16,14 +16,24 @@ function (  $,
     return Backbone.View.extend({
         template: doT.template(inboxViewTemplate),
         initialize: function() {
-            this.listenTo(this.collection, "reset", this.renderCollection);
+            _.bindAll(this, "beforeRender", "render", "afterRender");
 
-            this.listenTo(this.collection, "change:metadata", this.render);
+            var _this = this;
+
+            this.render = _.wrap(this.render, function(render) {
+                  _this.beforeRender();
+                  render();
+                  _this.afterRender();
+                  return _this;
+            }); 
+
+            this.listenTo(this.collection, "reset", this.render);
+
+            //this.listenTo(this.collection, "change:metadata", this.render);
         },
         events: {
             "click #refresh-inbox": "refreshInbox"
         },
-        inboxItemViews: [],
         render: function() {
             var resultsPerPage,
                 totalSize,
@@ -59,21 +69,32 @@ function (  $,
     
             return this;
         },
+        beforeRender: function() {
+            console.log("before render");
+        },
+        afterRender: function() {
+            console.log("after render");
+
+            this.renderCollection();
+        },
+        cachedInboxItemViews: [],
         renderCollection: function() {
             var that = this;
 
+            console.log("RENDERING COLLECTION");
+
             // remove all existing inbox summary views
-            _.each(that.inboxItemViews, function(inboxItemView) {
-                inboxItemView.remove();
+            _.each(that.cachedInboxItemViews, function(cachedInboxItemView) {
+                cachedInboxItemView.remove();
             });
  
             // create and append each new inbox summary view
             this.collection.each(function(inboxItem, index) {
-                that.inboxItemViews[index] = new InboxItemView({
+                that.cachedInboxItemViews[index] = new InboxItemView({
                     model: inboxItem
                 });
 
-                $("#message-summaries").append(that.inboxItemViews[index].render().el);
+                that.$el.find("#message-summaries").append(that.cachedInboxItemViews[index].render().el);
             });
         },
         fetchInbox: function(page) {
@@ -102,6 +123,8 @@ function (  $,
             });
         },
         refreshInbox: function(evt) {
+            var that = this;
+
             evt.preventDefault();
 
             this.fetchInbox(this.collection.data("currentPage"));

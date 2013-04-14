@@ -78,28 +78,32 @@ function (  $,
                     //console.log("end of process");
                 });
         },
+        cachedInboxView: null,
         showInbox: function (page) {
-            GVMA.threads = page ? new Threads() : GVMA.threads;
+            GVMA.app.threads = page ? new Threads() : GVMA.app.threads;
 
-            console.log(GVMA.threads.data("currentPage"));
+            console.log(GVMA.app.threads.data("currentPage"));
 
-            var inboxView = new InboxView({
-                collection: GVMA.threads
+            console.log(this.cachedInboxView);
+
+            if (this.cachedInboxView) {
+                this.cachedInboxView.remove();
+            }
+
+            this.cachedInboxView = new InboxView({
+                collection: GVMA.app.threads
             });
 
-            $("#messages").html(inboxView.render().el);
+            $("#messages").html(this.cachedInboxView.render().el);
 
             if (page) {
-                GVMA.threads.data("currentPage", page);
+                GVMA.app.threads.data("currentPage", page);
 
-                inboxView.fetchInbox(page);
-            }
-            else {
-                inboxView.renderCollection();
+                this.cachedInboxView.fetchInbox(page);
             }
         },
         showMessage: function (id) {
-            var thread = GVMA.threads.get(id);
+            var thread = GVMA.app.threads.get(id);
 
             console.log(thread);
 
