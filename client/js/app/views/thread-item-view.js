@@ -14,7 +14,6 @@ function (  $,
     return Backbone.View.extend({
         template: doT.template(threadItemViewTemplate),
         initialize: function() {
-            this.listenTo(this.model, "reset", this.render);
             this.listenTo(this.model, "change", this.render);
         },
         events: {
@@ -28,10 +27,8 @@ function (  $,
         },
         sendSms: function(evt) {
             var that = this,
-                smsText = $("#sms-textarea").val(),
+                smsText = this.$el.find("#sms-textarea").val(),
                 smsPhone = that.model.get("contact").phone.replace(/[^0-9]/g, "");
-
-            console.log(smsPhone);
 
             evt.preventDefault();
 
@@ -45,7 +42,7 @@ function (  $,
                     token: GVMA.user.token
                 },
                 beforeSend: function() {
-                    console.log("begin sending text");
+                    
                 }
             }).done(function(data) {
                 var jsonResponse = {},
@@ -87,28 +84,18 @@ function (  $,
                     token: GVMA.user.token
                 },
                 beforeSend: function () {
-                    console.log("before refresh thread");
+                    
                 }
             }).done(function(data, textStatus, jqXHR) {
-                console.log(data);
-                console.log(textStatus);
-                console.log(jqXHR);
-
-                console.log(that.model);
-
                 for (var i = 0; i < data.messages.length; i++) {
                     if (data.messages[i].id === that.model.get("id")) {
-                        console.log("FOUND IT");
-
                         that.model.set("messages", data.messages[i].messages);
                     }
                 }
             }).fail(function(collection, xhr, options) {
-                // console.log(collection);
-                // console.log(xhr);
-                // console.log(options);
+                
             }).always(function() {
-                console.log("finish refresh thread");;
+                
             });
         }
     });

@@ -14,7 +14,7 @@ function (  $,
         url: "http://localhost:3000/inbox",
         _data: {},
         initialize: function() {
-            //console.log("threads created");
+            
         },
         // Extend collection with ability to store attributes and trigger events on
         //  attributes changing

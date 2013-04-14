@@ -21,7 +21,7 @@ function (  $,
             "messages/:id": "showMessage"
         },
         showHome: function () {
-            console.log("home");
+            
         },
         logIn: function() {
             var authenticateUser = function() {
@@ -29,16 +29,14 @@ function (  $,
                     url: "http://localhost:3000/login",
                     type: "POST",
                     beforeSend: function () {
-                        //console.log("before login");
+                        
                     }
                 }).done(function (data) {
                     GVMA.user.token = data;
                 }).fail(function (jqXHR, textStatus, errorThrown) {
-                    console.log(jqXHR);
-                    console.log(textStatus);
-                    console.log(errorThrown);
+                    
                 }).always(function () {
-                    //console.log("done login");
+                    
                 });
             };
 
@@ -50,41 +48,31 @@ function (  $,
                         token: GVMA.user.token
                     },
                     beforeSend: function () {
-                        //console.log("before rnrse");
+                        
                     }
                 }).done(function (data) {
                     GVMA.user.rnrse = data;
                 }).fail(function (jqXHR, textStatus, errorThrown) {
-                    console.log(jqXHR);
-                    console.log(textStatus);
-                    console.log(errorThrown);
+                    
                 }).always(function () {
-                    //console.log("done rnrse");
+                    
                 });
             };
 
             authenticateUser().then(retrieveRnrseToken)
                 .done(function () {
-                    console.log("user: ", GVMA.user);
-
-                    //console.log("the process completed successfully");
-
                     GVMA.app.router.navigate("inbox/1", {trigger: true});
                 })
                 .fail(function () {
-                    //console.log("one of the steps failed");
+                    
                 })
                 .always(function () {
-                    //console.log("end of process");
+                    
                 });
         },
         cachedInboxView: null,
         showInbox: function (page) {
             GVMA.app.threads = page ? new Threads() : GVMA.app.threads;
-
-            console.log(GVMA.app.threads.data("currentPage"));
-
-            console.log(this.cachedInboxView);
 
             if (this.cachedInboxView) {
                 this.cachedInboxView.remove();
@@ -102,16 +90,19 @@ function (  $,
                 this.cachedInboxView.fetchInbox(page);
             }
         },
+        cachedThreadItemView: null,
         showMessage: function (id) {
             var thread = GVMA.app.threads.get(id);
 
-            console.log(thread);
+            if (this.cachedThreadItemView) {
+                this.cachedThreadItemView.remove();
+            }
 
-            var threadItemView = new ThreadItemView({
+            this.cachedThreadItemView = new ThreadItemView({
                 model: thread
             });
 
-            $("#messages").html(threadItemView.render().el);
+            $("#messages").html(this.cachedThreadItemView.render().el);
         }
 
     });

@@ -16,20 +16,21 @@ function (  $,
     return Backbone.View.extend({
         template: doT.template(inboxViewTemplate),
         initialize: function() {
+            var that = this;
+
             _.bindAll(this, "beforeRender", "render", "afterRender");
 
-            var _this = this;
-
             this.render = _.wrap(this.render, function(render) {
-                  _this.beforeRender();
+                  that.beforeRender();
+
                   render();
-                  _this.afterRender();
-                  return _this;
+
+                  that.afterRender();
+
+                  return that;
             }); 
 
             this.listenTo(this.collection, "reset", this.render);
-
-            //this.listenTo(this.collection, "change:metadata", this.render);
         },
         events: {
             "click #refresh-inbox": "refreshInbox"
@@ -70,18 +71,14 @@ function (  $,
             return this;
         },
         beforeRender: function() {
-            console.log("before render");
+            
         },
         afterRender: function() {
-            console.log("after render");
-
             this.renderCollection();
         },
         cachedInboxItemViews: [],
         renderCollection: function() {
             var that = this;
-
-            console.log("RENDERING COLLECTION");
 
             // remove all existing inbox summary views
             _.each(that.cachedInboxItemViews, function(cachedInboxItemView) {
@@ -108,23 +105,17 @@ function (  $,
                     token: GVMA.user.token
                 },
                 beforeSend: function () {
-                    console.log("begin retrieving inbox");
+                    
                 }
             }).done(function(collection, response, options) {
-                // console.log(collection);
-                // console.log(response);
-                // console.log(options);
+                
             }).fail(function(collection, xhr, options) {
-                // console.log(collection);
-                // console.log(xhr);
-                // console.log(options);
+                
             }).always(function() {
-                //console.log("always");;
+                
             });
         },
         refreshInbox: function(evt) {
-            var that = this;
-
             evt.preventDefault();
 
             this.fetchInbox(this.collection.data("currentPage"));
