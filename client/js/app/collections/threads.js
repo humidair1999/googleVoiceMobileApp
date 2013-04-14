@@ -13,10 +13,10 @@ function (  $,
         model: Thread,
         url: "http://localhost:3000/inbox",
         initialize: function() {
-            //console.log("threads");
+            this.options = {};
         },
         parse: function(response) {
-            // TODO: don't forget this call also retrieves overall inbox metadata
+            this.options.metadata = response.metadata;
 
             return response.messages;
         }

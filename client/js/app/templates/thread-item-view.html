@@ -1,4 +1,7 @@
 <div style="border: 1px solid gray;">
+    <a href="#inbox">Back to Inbox</a>
+    <button id="refresh-thread">Refresh thread</button>
+
     {{~it.messages :value:index}}
         <div><b>from {{=value.from}} at {{=value.time}}</b></div>
         <div>{{=value.text}}</div>

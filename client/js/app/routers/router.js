@@ -17,7 +17,7 @@ function (  $,
         routes: {
             "": "showHome",
             "login": "logIn",
-            "inbox/:page": "showInbox",
+            "inbox(/:page)": "showInbox",
             "messages/:id": "showMessage"
         },
         showHome: function () {
@@ -77,9 +77,13 @@ function (  $,
                 });
         },
         showInbox: function (page) {
-            GVMA.threads = new Threads();
+            GVMA.threads = page ? new Threads() : GVMA.threads;
 
-            console.log(GVMA);
+            if (page) {
+                GVMA.threads.options.currentPage = page;
+            }
+
+            console.log(GVMA.threads);
 
             var inboxView = new InboxView({
                 collection: GVMA.threads
@@ -87,7 +91,12 @@ function (  $,
 
             $("#messages").html(inboxView.render().el);
 
-            inboxView.fetchInbox(page);
+            if (page) {
+                inboxView.fetchInbox(page);
+            }
+            else {
+                inboxView.renderCollection();
+            }
         },
         showMessage: function (id) {
             var thread = GVMA.threads.get(id);

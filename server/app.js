@@ -292,7 +292,7 @@ app.post("/sms", express.bodyParser(), function(req, res) {
     var token = req.body.token,
         data = querystring.stringify({
             _rnr_se: req.body._rnr_se,
-            phoneNumber: 2073700006,
+            phoneNumber: req.body.phoneNumber,
             text: req.body.text
         });
 
@@ -334,7 +334,7 @@ app.post("/sms", express.bodyParser(), function(req, res) {
     };
 
     sendSms(token, data).then(function(data) {
-        res.send("successfully sent message");
+        res.send(data);
 
         res.end();
     }, function(error) {

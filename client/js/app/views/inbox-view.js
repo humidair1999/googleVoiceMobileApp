@@ -18,8 +18,11 @@ function (  $,
         initialize: function() {
             this.listenTo(this.collection, "reset", this.renderCollection);
         },
+        events: {
+            "click #refresh-inbox": "refreshInbox"
+        },
         render: function() {
-            this.$el.html(this.template());
+            this.$el.html(this.template(this.collection.options));
     
             return this;
         },
@@ -45,7 +48,7 @@ function (  $,
                     token: GVMA.user.token
                 },
                 beforeSend: function () {
-                    //console.log("before");
+                    console.log("begin retrieving inbox");
                 }
             }).done(function(collection, response, options) {
                 // console.log(collection);
@@ -58,6 +61,11 @@ function (  $,
             }).always(function() {
                 //console.log("always");;
             });
+        },
+        refreshInbox: function(evt) {
+            evt.preventDefault();
+
+            this.fetchInbox(this.collection.options.currentPage);
         }
     });
 
