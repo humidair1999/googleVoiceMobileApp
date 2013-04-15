@@ -104,14 +104,14 @@ function (  $,
                     token: GVMA.user.token
                 },
                 beforeSend: function () {
-                    
+                    that.$el.find("#loading-inbox").css("display", "block");
                 }
             }).done(function(collection, response, options) {
                 
             }).fail(function(collection, xhr, options) {
                 
             }).always(function() {
-                
+                that.$el.find("#loading-inbox").css("display", "none");
             });
         },
         refreshInbox: function(evt) {

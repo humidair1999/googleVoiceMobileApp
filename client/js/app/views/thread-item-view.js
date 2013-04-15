@@ -28,9 +28,29 @@ function (  $,
         sendSms: function(evt) {
             var that = this,
                 smsText = this.$el.find("#sms-textarea").val(),
-                smsPhone = that.model.get("contact").phone.replace(/[^0-9]/g, "");
+                smsPhone;
 
             evt.preventDefault();
+
+            // if contact already exists, just pull their associated phone number
+            if (this.model.get("contact").phone.length > 0) {
+                smsPhone = this.model.get("contact").phone;
+            }
+            // otherwise, we have to iterate over the entire message thread until we
+            //  find a message from them and pull the number out of the 'from:' field
+            else {
+                $.each(this.model.get("messages"), function(index, value) {
+                    if (value.from.indexOf("Me:") === -1) {
+                        smsPhone = value.from;
+
+                        // boot us out of the loop early since we already now have their
+                        //  phone number
+                        return false;
+                    }
+                });
+            }
+
+            smsPhone = smsPhone.replace(/[^0-9]/g, "");
 
             return $.ajax({
                 url: "http://localhost:3000/sms",
@@ -84,7 +104,7 @@ function (  $,
                     token: GVMA.user.token
                 },
                 beforeSend: function () {
-                    
+                    that.$el.find("#loading-thread").css("display", "block");
                 }
             }).done(function(data, textStatus, jqXHR) {
                 for (var i = 0; i < data.messages.length; i++) {
@@ -95,7 +115,7 @@ function (  $,
             }).fail(function(collection, xhr, options) {
                 
             }).always(function() {
-                
+                that.$el.find("#loading-thread").css("display", "none");
             });
         }
     });
