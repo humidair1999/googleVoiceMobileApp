@@ -12,20 +12,25 @@ function (  $,
     return Backbone.Collection.extend({
         model: Thread,
         url: "http://localhost:3000/inbox",
-        _data: {},
         initialize: function() {
             
         },
         // Extend collection with ability to store attributes and trigger events on
         //  attributes changing
+        _data: {},
         data: function(prop, value) {
-            if (value) {
-                this._data[prop] = value;
+            if (prop) {
+                if (value !== undefined) {
+                    this._data[prop] = value;
 
-                this.trigger("change:" + prop, value);
+                    this.trigger("change:" + prop, value);
+                }
+                else {
+                    return this._data[prop]
+                }
             }
             else {
-                return this._data[prop]
+                return this._data;
             }
         },
         parse: function(response) {

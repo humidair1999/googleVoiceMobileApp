@@ -1,8 +1,25 @@
 <div style="background:green">
     <button id="refresh-inbox">Refresh inbox</button>
 
-    Page {{=it}}
+    {{? it.currentPage}}Page {{=it.currentPage}}{{?}}
 
+    {{? it.hasNewerThreads}}
+        {{? it.currentPage !== 2}}
+            <a href="#inbox/1">newest</a>
+        {{?}}
+
+        <a href="#inbox/{{=it.currentPage-1}}">newer</a>
+    {{?}}
+    
+    {{? it.hasOlderThreads}}
+        <a href="#inbox/{{=it.currentPage+1}}">older</a>
+    {{?}}
+
+    <form id="page-form">
+        <input type="text" id="page-number-input" placeholder="page" />
+
+        <input type="submit" value="Go to page">
+    </form>
 </div>
 
 <div id="message-summaries"></div>

@@ -33,40 +33,39 @@ function (  $,
             this.listenTo(this.collection, "reset", this.render);
         },
         events: {
-            "click #refresh-inbox": "refreshInbox"
+            "click #refresh-inbox": "refreshInbox",
+            "submit #page-form": "goToPage",
         },
         render: function() {
-            var resultsPerPage,
-                totalSize,
-                totalPages;
+            var resultsPerPage = null,
+                totalSize = null,
+                totalPages = null;
 
             try {
-                resultPerPage = this.collection.data("metadata").resultsPerPage;
-            }
-            catch(error) {
-                resultsPerPage = 10;
-            }
-
-            try {
+                resultsPerPage = this.collection.data("metadata").resultsPerPage;
                 totalSize = this.collection.data("metadata").totalSize;
+
+                totalPages = (totalSize / resultsPerPage);
             }
             catch(error) {
-                totalSize = 100;
+                console.log("collection does not yet possess metadata");
             }
-
-            totalPages = (totalSize / resultsPerPage);
-
-            console.log(totalPages);
 
             if (this.collection.data("currentPage") > 1) {
-                //this.collection.data("hasNewerThreads", true);
+                this.collection.data("hasNewerThreads", true);
+            }
+            else {
+                this.collection.data("hasNewerThreads", false);
             }
 
-            if (this.collection.data("currentPage") * resultsPerPage < 30) {
-                //this.collection.data("hasOlderThreads", true);
+            if (this.collection.data("currentPage") < totalPages) {
+                this.collection.data("hasOlderThreads", true);
+            }
+            else {
+                this.collection.data("hasOlderThreads", false);
             }
 
-            this.$el.html(this.template(this.collection.data("currentPage")));
+            this.$el.html(this.template(this.collection.data()));
     
             return this;
         },
@@ -119,6 +118,13 @@ function (  $,
             evt.preventDefault();
 
             this.fetchInbox(this.collection.data("currentPage"));
+        },
+        goToPage: function(evt) {
+            var pageNumber = this.$el.find("#page-number-input").val();
+
+            evt.preventDefault();
+
+            GVMA.app.router.navigate("inbox/" + pageNumber, {trigger: true});
         }
     });
 

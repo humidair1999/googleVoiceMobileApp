@@ -85,7 +85,7 @@ function (  $,
             $("#messages").html(this.cachedInboxView.render().el);
 
             if (page) {
-                GVMA.app.threads.data("currentPage", page);
+                GVMA.app.threads.data("currentPage", parseInt(page, 10));
 
                 this.cachedInboxView.fetchInbox(page);
             }
